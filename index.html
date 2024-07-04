@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>總分計算器</title>
+</head>
+<body>
+    <h1>總分計算器</h1>
+    <form id="scoreForm">
+        <label for="chinese">國文 (x3):</label>
+        <input type="number" id="chinese" name="chinese"><br><br>
+        <label for="math">數學 (x4):</label>
+        <input type="number" id="math" name="math"><br><br>
+        <label for="english">英語文 (x2):</label>
+        <input type="number" id="english" name="english"><br><br>
+        <label for="grammar">英文文法 (x2):</label>
+        <input type="number" id="grammar" name="grammar"><br><br>
+        <label for="electronics">電子學 (x3):</label>
+        <input type="number" id="electronics" name="electronics"><br><br>
+        <label for="microprocessor">微處理機 (x3):</label>
+        <input type="number" id="microprocessor" name="microprocessor"><br><br>
+        <label for="reading">論夢選讀 (x1):</label>
+        <input type="number" id="reading" name="reading"><br><br>
+        <button type="button" onclick="calculateTotal()">計算總分</button>
+    </form>
+    <h2 id="totalScore">總分: 0</h2>
+
+    <script>
+        function calculateTotal() {
+            var chinese = (parseFloat(document.getElementById('chinese').value) || 0) * 3;
+            var math = (parseFloat(document.getElementById('math').value) || 0) * 4;
+            var english = (parseFloat(document.getElementById('english').value) || 0) * 2;
+            var grammar = (parseFloat(document.getElementById('grammar').value) || 0) * 2;
+            var electronics = (parseFloat(document.getElementById('electronics').value) || 0) * 3;
+            var microprocessor = (parseFloat(document.getElementById('microprocessor').value) || 0) * 3;
+            var reading = (parseFloat(document.getElementById('reading').value) || 0) * 1;
+            
+            var total = chinese + math + english + grammar + electronics + microprocessor + reading;
+            
+            document.getElementById('totalScore').textContent = '總分: ' + total;
+        }
+    </script>
+</body>
+</html>
