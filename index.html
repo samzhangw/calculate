@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>段考成績計算</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+            margin: 0;
+            height: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 20px;
+        }
+        label {
+            margin: 10px 0 5px;
+        }
+        input, select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        h2 {
+            color: #007bff;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .show {
+            opacity: 1;
+        }
+        .subject-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .subject-container button {
+            background-color: red;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>段考成績加權計算</h1>
+    <form id="scoreForm">
+        <div class="subject-container">
+            <label for="chinese">國文 (x3):</label>
+            <input type="number" id="chinese" name="chinese" data-weight="3">
+            <button type="button" onclick="removeSubject(this)">刪除</button>
+        </div>
+        <div class="subject-container">
+            <label for="math">數學 (x4):</label>
+            <input type="number" id="math" name="math" data-weight="4">
+            <button type="button" onclick="removeSubject(this)">刪除</button>
+        </div>
+        <button type="button" onclick="addSubject()">新增科目</button>
+        <button type="button" onclick="calculateTotal()">計算總分</button>
+    </form>
+    <h2 id="totalScore">總分: 0</h2>
+    <h2 id="weightedAverage">加權平均: 0</h2>
+
+    <script>
+        function addSubject() {
+            const form = document.getElementById('scoreForm');
+
+            const div = document.createElement('div');
+            div.className = 'subject-container';
+
+            const label = document.createElement('label');
+            const subjectName = prompt("請輸入科目名稱：");
+            const weight = prompt("請輸入此科目的加權值：");
+
+            label.textContent = `${subjectName} (x${weight}):`;
+            label.setAttribute('for', subjectName.toLowerCase());
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.id = subjectName.toLowerCase();
+            input.name = subjectName.toLowerCase();
+            input.setAttribute('data-weight', weight);
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = '刪除';
+            button.onclick = () => removeSubject(button);
+
+            div.appendChild(label);
+            div.appendChild(input);
+            div.appendChild(button);
+
+            form.insertBefore(div, form.children[form.children.length - 2]);
+        }
+
+        function removeSubject(button) {
+            const div = button.parentElement;
+            div.remove();
+        }
+
+        function calculateTotal() {
+            const inputs = document.querySelectorAll('#scoreForm input');
+            let total = 0;
+            let totalWeight = 0;
+
+            inputs.forEach(input => {
+                const weight = parseFloat(input.getAttribute('data-weight')) || 1;
+                const score = parseFloat(input.value) || 0;
+                total += score * weight;
+                totalWeight += weight;
+            });
+
+            const weightedAverage = total / totalWeight;
+
+            document.getElementById('totalScore').textContent = '總分: ' + total;
+            document.getElementById('weightedAverage').textContent = '加權平均: ' + weightedAverage.toFixed(1);
+
+            document.getElementById('totalScore').classList.add('show');
+            document.getElementById('weightedAverage').classList.add('show');
+        }
+
+        window.addEventListener('beforeunload', function (e) {
+            const confirmationMessage = '你有未儲存的變更，確定要離開此頁面嗎？';
+            e.returnValue = confirmationMessage; // Gecko and Trident
+            return confirmationMessage; // Gecko and WebKit
+        });
+    </script>
+</body>
+</html>
