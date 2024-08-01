@@ -1,0 +1,329 @@
+<html><head></head><body>
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成績計算器 - 極簡設計</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #f7f9fc;
+            --card-bg: #ffffff;
+            --primary-color: #6c63ff;
+            --secondary-color: #3f3d56;
+            --text-color: #333333;
+            --input-bg: #f0f3f7;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            letter-spacing: 2px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .subject-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        label {
+            flex: 1;
+            font-weight: 400;
+            color: var(--secondary-color);
+        }
+
+        input {
+            flex: 2;
+            padding: 0.75rem;
+            font-size: 1rem;
+            background-color: var(--input-bg);
+            border: none;
+            border-radius: 10px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            color: #ffffff;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+
+        button:hover {
+            background-color: #5651e5;
+            transform: translateY(-2px);
+        }
+
+        .btn-remove {
+            background-color: #ff6b6b;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-remove:hover {
+            background-color: #ff5252;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+
+        .result {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 1rem;
+            opacity: 0;
+            transition: all 0.5s ease;
+            font-weight: 300;
+        }
+
+        .result.show {
+            opacity: 1;
+        }
+
+        #chartContainer {
+            width: 100%;
+            height: 300px;
+        }
+
+        @media (max-width: 600px) {
+            .subject-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>成績計算器</h1>
+        <div class="card" id="scoreForm">
+            <div class="subject-container">
+                <label for="chinese">國文 (x3):</label>
+                <input type="number" id="chinese" name="國文" data-weight="3">
+                <button class="btn-remove" onclick="removeSubject(this)">刪除</button>
+            </div>
+            <div class="subject-container">
+                <label for="math">數學 (x4):</label>
+                <input type="number" id="math" name="數學" data-weight="4">
+                <button class="btn-remove" onclick="removeSubject(this)">刪除</button>
+            </div>
+            <div class="btn-group">
+                <button onclick="addSubject()">新增科目</button>
+                <button onclick="calculateTotal()">計算總分</button>
+            </div>
+        </div>
+        <div class="card">
+            <div id="totalScore" class="result">總分: 0</div>
+            <div id="weightedAverage" class="result">加權平均: 0</div>
+        </div>
+
+        <div class="btn-group">
+            <button onclick="saveScores()">儲存成績</button>
+            <button onclick="loadScores()">載入成績</button>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+
+        function addSubject() {
+            const form = document.getElementById('scoreForm');
+            const subjectName = prompt("請輸入科目名稱：");
+            const weight = prompt("請輸入此科目的加權值：");
+
+            if (subjectName && weight) {
+                const div = document.createElement('div');
+                div.className = 'subject-container';
+                div.innerHTML = `
+                    <label for="${subjectName}">${subjectName} (x${weight}):</label>
+                    <input type="number" id="${subjectName}" name="${subjectName}" data-weight="${weight}">
+                    <button class="btn-remove" onclick="removeSubject(this)">刪除</button>
+                `;
+                form.insertBefore(div, form.lastElementChild);
+                saveToLocalStorage();
+            }
+        }
+
+        function removeSubject(button) {
+            const div = button.parentElement;
+            div.style.animation = 'fadeOut 0.5s ease-out';
+            setTimeout(() => {
+                div.remove();
+                saveToLocalStorage();
+            }, 500);
+        }
+
+        function calculateTotal() {
+            const inputs = document.querySelectorAll('#scoreForm input');
+            let total = 0;
+            let totalWeight = 0;
+            const scores = [];
+            const labels = [];
+
+            inputs.forEach(input => {
+                const weight = parseFloat(input.getAttribute('data-weight')) || 1;
+                const score = parseFloat(input.value) || 0;
+                total += score * weight;
+                totalWeight += weight;
+                scores.push(score);
+                labels.push(input.name);
+            });
+
+            const weightedAverage = total / totalWeight;
+
+            document.getElementById('totalScore').textContent = `總分: ${total.toFixed(1)}`;
+            document.getElementById('weightedAverage').textContent = `加權平均: ${weightedAverage.toFixed(1)}`;
+
+            document.getElementById('totalScore').classList.add('show');
+            document.getElementById('weightedAverage').classList.add('show');
+
+            updateChart(labels, scores);
+            saveToLocalStorage();
+        }
+
+
+
+        function saveToLocalStorage() {
+            const subjects = [];
+            const inputs = document.querySelectorAll('#scoreForm input');
+            inputs.forEach(input => {
+                subjects.push({
+                    name: input.name,
+                    weight: input.getAttribute('data-weight'),
+                    score: input.value
+                });
+            });
+            localStorage.setItem('subjects', JSON.stringify(subjects));
+        }
+
+        function loadFromLocalStorage() {
+            const subjects = JSON.parse(localStorage.getItem('subjects'));
+            if (subjects) {
+                const form = document.getElementById('scoreForm');
+                // 清除現有科目
+                while (form.children.length > 1) {
+                    form.removeChild(form.firstChild);
+                }
+                subjects.forEach(subject => {
+                    const div = document.createElement('div');
+                    div.className = 'subject-container';
+                    div.innerHTML = `
+                        <label for="${subject.name}">${subject.name} (x${subject.weight}):</label>
+                        <input type="number" id="${subject.name}" name="${subject.name}" data-weight="${subject.weight}" value="${subject.score}">
+                        <button class="btn-remove" onclick="removeSubject(this)">刪除</button>
+                    `;
+                    form.insertBefore(div, form.lastElementChild);
+                });
+                calculateTotal();
+            }
+        }
+
+        function saveScores() {
+            const name = prompt("請輸入此成績集的名稱：");
+            if (name) {
+                const scores = JSON.parse(localStorage.getItem('subjects'));
+                const savedScores = JSON.parse(localStorage.getItem('savedScores')) || {};
+                savedScores[name] = scores;
+                localStorage.setItem('savedScores', JSON.stringify(savedScores));
+                alert("成績已儲存！");
+            }
+        }
+
+        function loadScores() {
+            const savedScores = JSON.parse(localStorage.getItem('savedScores')) || {};
+            const names = Object.keys(savedScores);
+            if (names.length === 0) {
+                alert("沒有已儲存的成績集！");
+                return;
+            }
+            const name = prompt("請輸入要載入的成績集名稱：\n" + names.join(", "));
+            if (name && savedScores[name]) {
+                localStorage.setItem('subjects', JSON.stringify(savedScores[name]));
+                loadFromLocalStorage();
+                alert("成績已載入！");
+            } else {
+                alert("找不到指定的成績集！");
+            }
+        }
+
+        window.addEventListener('load', loadFromLocalStorage);
+
+        window.addEventListener('beforeunload', function (e) {
+            const confirmationMessage = '你有未儲存的變更，確定要離開此頁面嗎？';
+            e.returnValue = confirmationMessage;
+            return confirmationMessage;
+        });
+    </script>
+</body>
+</html>
