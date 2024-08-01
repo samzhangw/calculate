@@ -1,0 +1,509 @@
+<html><head></head><body>
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成績計算器 - 極簡設計</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+         :root {
+            --bg-color: #f7f9fc;
+            --card-bg: #ffffff;
+            --primary-color: #6c63ff;
+            --secondary-color: #3f3d56;
+            --text-color: #333333;
+            --input-bg: #f0f3f7;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            letter-spacing: 2px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .subject-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .subject-container input[type="number"],
+    .subject-container input[type="text"] {
+        flex: 2;
+        padding: 0.75rem;
+        font-size: 1rem;
+        background-color: var(--input-bg);
+        border: none;
+        border-radius: 10px;
+        color: var(--text-color);
+        transition: all 0.3s ease;
+    }
+
+    .subject-container input[type="number"]:focus,
+    .subject-container input[type="text"]:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--primary-color);
+    }
+
+    .subject-container .weight-input {
+        flex: 1;
+        max-width: 80px;
+    }
+
+    .edit-mode {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .edit-mode input[type="text"],
+    .edit-mode input[type="number"] {
+        flex: 2;
+    }
+
+    .edit-mode .weight-input {
+        flex: 1;
+        max-width: 80px;
+    }
+
+    .btn-edit,
+    .btn-save {
+        background-color: #4CAF50;
+        padding: 0.5rem 1rem;
+    }
+
+    .btn-edit:hover,
+    .btn-save:hover {
+        background-color: #45a049;
+    }
+
+    @media (max-width: 600px) {
+        .subject-container,
+        .edit-mode {
+            flex-wrap: wrap;
+        }
+
+        .subject-container input[type="number"],
+        .subject-container input[type="text"],
+        .edit-mode input[type="text"],
+        .edit-mode input[type="number"],
+        .subject-container .weight-input,
+        .edit-mode .weight-input {
+            flex: 1 0 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .subject-container button,
+        .edit-mode button {
+            flex: 1;
+        }
+    }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        label {
+            flex: 1;
+            font-weight: 400;
+            color: var(--secondary-color);
+        }
+
+        input {
+            flex: 2;
+            padding: 0.75rem;
+            font-size: 1rem;
+            background-color: var(--input-bg);
+            border: none;
+            border-radius: 10px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            color: #ffffff;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+
+        button:hover {
+            background-color: #5651e5;
+            transform: translateY(-2px);
+        }
+
+        .btn-remove {
+            background-color: #ff6b6b;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-remove:hover {
+            background-color: #ff5252;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+
+        .result {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 1rem;
+            opacity: 0;
+            transition: all 0.5s ease;
+            font-weight: 300;
+        }
+
+        .result.show {
+            opacity: 1;
+        }
+
+        #chartContainer {
+            width: 100%;
+            height: 300px;
+        }
+
+        @media (max-width: 600px) {
+            .subject-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            input {
+                width: 100%;
+            }
+        }
+        /* 保持原有的樣式 */
+        /* ... 此處省略原有的 CSS ... */
+
+        /* 新增的樣式 */
+        .edit-mode input[type="text"] {
+            width: 100px;
+            padding: 5px;
+            margin-right: 5px;
+        }
+        .edit-mode input[type="number"].weight {
+            width: 50px;
+            padding: 5px;
+            margin-right: 5px;
+        }
+        .btn-edit, .btn-save {
+            background-color: #4CAF50;
+            margin-left: 5px;
+        }
+        .btn-edit:hover, .btn-save:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>成績計算器</h1>
+        <div class="card" id="scoreForm">
+            <!-- 科目將在JavaScript中動態添加 -->
+            <div class="btn-group">
+                <button onclick="addSubject()">新增科目</button>
+                <button onclick="calculateTotal()">計算總分</button>
+            </div>
+        </div>
+        <div class="card">
+            <div id="totalScore" class="result">總分: 0</div>
+            <div id="weightedAverage" class="result">加權平均: 0</div>
+        </div>
+
+        <div class="btn-group">
+            <button onclick="saveScores()">儲存成績</button>
+            <button onclick="loadScores()">載入成績</button>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+
+        function createSubjectElement(name, weight, score = '') {
+            const div = document.createElement('div');
+            div.className = 'subject-container';
+            div.innerHTML = `
+                <label for="${name}">${name} (x${weight}):</label>
+                <input type="number" id="${name}" name="${name}" data-weight="${weight}" value="${score}" min="0" max="100">
+                <button class="btn-edit" onclick="editSubject(this)">編輯</button>
+                <button class="btn-remove" onclick="removeSubject(this)">刪除</button>
+            `;
+            return div;
+        }
+
+        function addSubject() {
+            let subjectName = prompt("請輸入科目名稱：");
+            if (!subjectName) return;
+            subjectName = subjectName.trim();
+            if (subjectName === "") {
+                alert("科目名稱不能為空！");
+                return;
+            }
+            if (document.getElementById(subjectName)) {
+                alert("此科目已存在！");
+                return;
+            }
+
+            let weight = prompt("請輸入此科目的加權值：");
+            if (!weight) return;
+            weight = parseFloat(weight);
+            if (isNaN(weight) || weight <= 0) {
+                alert("加權值必須是大於0的數字！");
+                return;
+            }
+
+            const form = document.getElementById('scoreForm');
+            const subjectElement = createSubjectElement(subjectName, weight);
+            form.insertBefore(subjectElement, form.lastElementChild);
+            saveToLocalStorage();
+        }
+
+        function editSubject(button) {
+            const container = button.parentElement;
+            const label = container.querySelector('label');
+            const input = container.querySelector('input[type="number"]');
+            const currentName = input.name;
+            const currentWeight = input.getAttribute('data-weight');
+
+            container.classList.add('edit-mode');
+            container.innerHTML = `
+                <input type="text" value="${currentName}" placeholder="科目名稱">
+                <input type="number" class="weight" value="${currentWeight}" min="0.1" step="0.1" placeholder="權重">
+                <input type="number" value="${input.value}" min="0" max="100" placeholder="分數">
+                <button class="btn-save" onclick="saveEdit(this, '${currentName}')">保存</button>
+                <button class="btn-remove" onclick="cancelEdit(this, '${currentName}', ${currentWeight}, '${input.value}')">取消</button>
+            `;
+        }
+
+        function saveEdit(button, oldName) {
+            const container = button.parentElement;
+            const inputs = container.querySelectorAll('input');
+            const newName = inputs[0].value.trim();
+            const newWeight = parseFloat(inputs[1].value);
+            const newScore = inputs[2].value;
+
+            if (newName === "") {
+                alert("科目名稱不能為空！");
+                return;
+            }
+            if (newName !== oldName && document.getElementById(newName)) {
+                alert("此科目名稱已存在！");
+                return;
+            }
+            if (isNaN(newWeight) || newWeight <= 0) {
+                alert("加權值必須是大於0的數字！");
+                return;
+            }
+
+            container.classList.remove('edit-mode');
+            container.innerHTML = '';
+            container.appendChild(createSubjectElement(newName, newWeight, newScore));
+            saveToLocalStorage();
+        }
+
+        function cancelEdit(button, oldName, oldWeight, oldScore) {
+            const container = button.parentElement;
+            container.classList.remove('edit-mode');
+            container.innerHTML = '';
+            container.appendChild(createSubjectElement(oldName, oldWeight, oldScore));
+        }
+
+        function removeSubject(button) {
+            if (document.querySelectorAll('#scoreForm .subject-container').length <= 2) {
+                alert("至少需要保留兩個科目！");
+                return;
+            }
+            const div = button.parentElement;
+            div.style.animation = 'fadeOut 0.5s ease-out';
+            setTimeout(() => {
+                div.remove();
+                saveToLocalStorage();
+            }, 500);
+        }
+
+        function calculateTotal() {
+            const inputs = document.querySelectorAll('#scoreForm input[type="number"]:not(.weight)');
+            let total = 0;
+            let totalWeight = 0;
+            const scores = [];
+            const labels = [];
+            let hasEmptyScore = false;
+
+            inputs.forEach(input => {
+                const weight = parseFloat(input.getAttribute('data-weight')) || 1;
+                const score = parseFloat(input.value);
+                if (isNaN(score)) {
+                    hasEmptyScore = true;
+                    return;
+                }
+                if (score < 0 || score > 100) {
+                    alert(`${input.name}的分數必須在0到100之間！`);
+                    hasEmptyScore = true;
+                    return;
+                }
+                total += score * weight;
+                totalWeight += weight;
+                scores.push(score);
+                labels.push(input.name);
+            });
+
+            if (hasEmptyScore) {
+                alert("請確保所有科目都已輸入有效的分數！");
+                return;
+            }
+
+            const weightedAverage = total / totalWeight;
+
+            document.getElementById('totalScore').textContent = `總分: ${total.toFixed(1)}`;
+            document.getElementById('weightedAverage').textContent = `加權平均: ${weightedAverage.toFixed(1)}`;
+
+            document.getElementById('totalScore').classList.add('show');
+            document.getElementById('weightedAverage').classList.add('show');
+
+            updateChart(labels, scores);
+            saveToLocalStorage();
+        }
+
+
+        function saveToLocalStorage() {
+            const subjects = [];
+            const inputs = document.querySelectorAll('#scoreForm input[type="number"]:not(.weight)');
+            inputs.forEach(input => {
+                subjects.push({
+                    name: input.name,
+                    weight: input.getAttribute('data-weight'),
+                    score: input.value
+                });
+            });
+            localStorage.setItem('subjects', JSON.stringify(subjects));
+        }
+
+        function loadFromLocalStorage() {
+            const subjects = JSON.parse(localStorage.getItem('subjects'));
+            if (subjects && subjects.length > 0) {
+                const form = document.getElementById('scoreForm');
+                // 清除現有科目
+                while (form.children.length > 1) {
+                    form.removeChild(form.firstChild);
+                }
+                subjects.forEach(subject => {
+                    const subjectElement = createSubjectElement(subject.name, subject.weight, subject.score);
+                    form.insertBefore(subjectElement, form.lastElementChild);
+                });
+                calculateTotal();
+            } else {
+                // 如果沒有保存的科目，添加默認的國文和數學
+                const form = document.getElementById('scoreForm');
+                form.insertBefore(createSubjectElement('國文', 3), form.lastElementChild);
+                form.insertBefore(createSubjectElement('數學', 4), form.lastElementChild);
+            }
+        }
+
+        function saveScores() {
+            const name = prompt("請輸入此成績集的名稱：");
+            if (!name) return; // 如果用戶取消或未輸入，則退出函數
+            if (name.trim() === "") {
+                alert("成績集名稱不能為空！");
+                return;
+            }
+            const scores = JSON.parse(localStorage.getItem('subjects'));
+            const savedScores = JSON.parse(localStorage.getItem('savedScores')) || {};
+            if (savedScores[name] && !confirm(`已存在名為"${name}"的成績集，是否覆蓋？`)) {
+                return;
+            }
+            savedScores[name] = scores;
+            localStorage.setItem('savedScores', JSON.stringify(savedScores));
+            alert("成績已儲存！");
+        }
+
+        function loadScores() {
+            const savedScores = JSON.parse(localStorage.getItem('savedScores')) || {};
+            const names = Object.keys(savedScores);
+            if (names.length === 0) {
+                alert("沒有已儲存的成績集！");
+                return;
+            }
+            const name = prompt("請輸入要載入的成績集名稱：\n" + names.join(", "));
+            if (!name) return; // 如果用戶取消或未輸入，則退出函數
+            if (savedScores[name]) {
+                localStorage.setItem('subjects', JSON.stringify(savedScores[name]));
+                loadFromLocalStorage();
+                alert("成績已載入！");
+            } else {
+                alert("找不到指定的成績集！");
+            }
+        }
+
+        window.addEventListener('load', loadFromLocalStorage);
+
+        window.addEventListener('beforeunload', function (e) {
+            const confirmationMessage = '你有未儲存的變更，確定要離開此頁面嗎？';
+            e.returnValue = confirmationMessage;
+            return confirmationMessage;
+        });
+    </script>
+</body>
+</html>
+
