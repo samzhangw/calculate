@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,6 +29,7 @@
         }
         label {
             margin: 10px 0 5px;
+            cursor: pointer;
         }
         input, select {
             padding: 10px;
@@ -74,12 +75,12 @@
     <h1>段考成績加權計算</h1>
     <form id="scoreForm">
         <div class="subject-container">
-            <label for="chinese">國文 (x3):</label>
+            <label for="chinese" onclick="editSubject(this)">國文 (x3):</label>
             <input type="number" id="chinese" name="chinese" data-weight="3">
             <button type="button" onclick="removeSubject(this)">刪除</button>
         </div>
         <div class="subject-container">
-            <label for="math">數學 (x4):</label>
+            <label for="math" onclick="editSubject(this)">數學 (x4):</label>
             <input type="number" id="math" name="math" data-weight="4">
             <button type="button" onclick="removeSubject(this)">刪除</button>
         </div>
@@ -93,15 +94,25 @@
         function addSubject() {
             const form = document.getElementById('scoreForm');
 
+            const subjectName = prompt("請輸入科目名稱：");
+            if (!subjectName) {
+                alert("科目名稱不能為空");
+                return;
+            }
+
+            const weight = prompt("請輸入此科目的加權值：");
+            if (!weight || isNaN(weight) || weight <= 0) {
+                alert("請輸入有效的加權值");
+                return;
+            }
+
             const div = document.createElement('div');
             div.className = 'subject-container';
 
             const label = document.createElement('label');
-            const subjectName = prompt("請輸入科目名稱：");
-            const weight = prompt("請輸入此科目的加權值：");
-
             label.textContent = `${subjectName} (x${weight}):`;
             label.setAttribute('for', subjectName.toLowerCase());
+            label.setAttribute('onclick', 'editSubject(this)');
 
             const input = document.createElement('input');
             input.type = 'number';
@@ -126,6 +137,28 @@
             div.remove();
         }
 
+        function editSubject(label) {
+            const newSubjectName = prompt("請輸入新的科目名稱：", label.textContent.split(' ')[0]);
+            if (!newSubjectName) {
+                alert("科目名稱不能為空");
+                return;
+            }
+
+            const newWeight = prompt("請輸入新的加權值：", label.textContent.split('x')[1].replace('):', ''));
+            if (!newWeight || isNaN(newWeight) || newWeight <= 0) {
+                alert("請輸入有效的加權值");
+                return;
+            }
+
+            label.textContent = `${newSubjectName} (x${newWeight}):`;
+            label.setAttribute('for', newSubjectName.toLowerCase());
+
+            const input = label.nextElementSibling;
+            input.id = newSubjectName.toLowerCase();
+            input.name = newSubjectName.toLowerCase();
+            input.setAttribute('data-weight', newWeight);
+        }
+
         function calculateTotal() {
             const inputs = document.querySelectorAll('#scoreForm input');
             let total = 0;
@@ -133,10 +166,19 @@
 
             inputs.forEach(input => {
                 const weight = parseFloat(input.getAttribute('data-weight')) || 1;
-                const score = parseFloat(input.value) || 0;
+                const score = parseFloat(input.value);
+                if (isNaN(score) || score < 0) {
+                    alert("請輸入有效的成績");
+                    return;
+                }
                 total += score * weight;
                 totalWeight += weight;
             });
+
+            if (totalWeight === 0) {
+                alert("沒有有效的科目加權值");
+                return;
+            }
 
             const weightedAverage = total / totalWeight;
 
