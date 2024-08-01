@@ -1,100 +1,196 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>段考成績計算</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f8ff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 20px;
-            margin: 0;
-            height: 100%;
-        }
-        h1 {
-            color: #333;
-            margin-top: 20px;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            max-width: 300px;
-            margin-bottom: 20px;
-        }
-        label {
-            margin: 10px 0 5px;
-            cursor: pointer;
-        }
-        input, select {
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            padding: 10px;
-            font-size: 16px;
-            color: white;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            margin-top: 20px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        h2 {
-            color: #007bff;
-            margin-top: 10px;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-        .show {
-            opacity: 1;
-        }
-        .subject-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .subject-container button {
-            background-color: red;
-            margin-left: 10px;
-        }
-        .edit-button {
-            background-color: #ffc107;
-            margin-left: 10px;
-        }
-    </style>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段考成績計算器</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary-color: #6200ea;
+        --secondary-color: #03dac6;
+        --background-color: #f5f5f5;
+        --text-color: #333;
+        --input-bg: #fff;
+        --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .container {
+        background-color: #ffffff;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: var(--box-shadow);
+        max-width: 600px;
+        width: 100%;
+        transition: var(--transition);
+    }
+
+    .container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    h1 {
+        color: var(--primary-color);
+        margin-bottom: 30px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 2.5rem;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .subject-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        animation: fadeIn 0.5s ease-out;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        padding: 15px;
+        transition: var(--transition);
+    }
+
+    .subject-container:hover {
+        background-color: #f0f0f0;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    label {
+        flex: 1;
+        margin-right: 15px;
+        font-weight: 400;
+        color: #555;
+    }
+
+    input[type="number"] {
+        flex: 2;
+        padding: 12px;
+        font-size: 16px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background-color: var(--input-bg);
+        transition: var(--transition);
+    }
+
+    input[type="number"]:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(98, 0, 234, 0.1);
+    }
+
+    button {
+        padding: 12px 20px;
+        font-size: 16px;
+        color: white;
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+        margin: 5px;
+        font-weight: 600;
+    }
+
+    button:hover {
+        background-color: #7c4dff;
+        transform: translateY(-2px);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+    .edit-button {
+        background-color: var(--secondary-color);
+        color: #333;
+    }
+
+    .edit-button:hover {
+        background-color: #00bfa5;
+    }
+
+    .remove-button {
+        background-color: #ff5252;
+    }
+
+    .remove-button:hover {
+        background-color: #ff1744;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+
+    .result {
+        margin-top: 40px;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        opacity: 0;
+        transition: var(--transition);
+        background-color: #f0f0f0;
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .result.show {
+        opacity: 1;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+</style>
 </head>
 <body>
-    <h1>段考成績加權計算</h1>
-    <form id="scoreForm">
-        <div class="subject-container">
-            <label for="chinese">國文 (x3):</label>
-            <input type="number" id="chinese" name="chinese" data-weight="3">
-            <button type="button" class="edit-button" onclick="editSubject(this)">編輯</button>
-            <button type="button" onclick="removeSubject(this)">刪除</button>
-        </div>
-        <div class="subject-container">
-            <label for="math">數學 (x4):</label>
-            <input type="number" id="math" name="math" data-weight="4">
-            <button type="button" class="edit-button" onclick="editSubject(this)">編輯</button>
-            <button type="button" onclick="removeSubject(this)">刪除</button>
-        </div>
-        <button type="button" onclick="addSubject()">新增科目</button>
-        <button type="button" onclick="calculateTotal()">計算總分</button>
-    </form>
-    <h2 id="totalScore">總分: 0</h2>
-    <h2 id="weightedAverage">加權平均: 0</h2>
+    <div class="container">
+        <h1>段考成績計算器</h1>
+        <form id="scoreForm">
+            <div class="subject-container">
+                <label for="chinese">國文 (x3):</label>
+                <input type="number" id="chinese" name="chinese" data-weight="3" min="0" max="100">
+                <button type="button" class="edit-button" onclick="editSubject(this)">編輯</button>
+                <button type="button" class="remove-button" onclick="removeSubject(this)">刪除</button>
+            </div>
+            <div class="subject-container">
+                <label for="math">數學 (x4):</label>
+                <input type="number" id="math" name="math" data-weight="4" min="0" max="100">
+                <button type="button" class="edit-button" onclick="editSubject(this)">編輯</button>
+                <button type="button" class="remove-button" onclick="removeSubject(this)">刪除</button>
+            </div>
+            <div class="action-buttons">
+                <button type="button" onclick="addSubject()">新增科目</button>
+                <button type="button" onclick="calculateTotal()">計算總分</button>
+            </div>
+        </form>
+        <div id="totalScore" class="result">總分: 0</div>
+        <div id="weightedAverage" class="result">加權平均: 0</div>
+    </div>
 
     <script>
         function addSubject() {
@@ -124,6 +220,8 @@
             input.id = subjectName.toLowerCase();
             input.name = subjectName.toLowerCase();
             input.setAttribute('data-weight', weight);
+            input.setAttribute('min', '0');
+            input.setAttribute('max', '100');
 
             const editButton = document.createElement('button');
             editButton.type = 'button';
@@ -134,6 +232,7 @@
             const removeButton = document.createElement('button');
             removeButton.type = 'button';
             removeButton.textContent = '刪除';
+            removeButton.className = 'remove-button';
             removeButton.onclick = () => removeSubject(removeButton);
 
             div.appendChild(label);
@@ -141,12 +240,13 @@
             div.appendChild(editButton);
             div.appendChild(removeButton);
 
-            form.insertBefore(div, form.children[form.children.length - 2]);
+            form.insertBefore(div, form.lastElementChild);
         }
 
         function removeSubject(button) {
             const div = button.parentElement;
-            div.remove();
+            div.style.animation = 'fadeOut 0.5s ease-out';
+            setTimeout(() => div.remove(), 500);
         }
 
         function editSubject(button) {
@@ -175,6 +275,8 @@
             input.id = newSubjectName.toLowerCase();
             input.name = newSubjectName.toLowerCase();
             input.setAttribute('data-weight', newWeight);
+
+            div.style.animation = 'pulse 0.5s ease-out';
         }
 
         function calculateTotal() {
@@ -185,8 +287,8 @@
             inputs.forEach(input => {
                 const weight = parseFloat(input.getAttribute('data-weight')) || 1;
                 const score = parseFloat(input.value);
-                if (isNaN(score) || score < 0) {
-                    alert("請輸入有效的成績");
+                if (isNaN(score) || score < 0 || score > 100) {
+                    alert(`請為 ${input.name} 輸入0到100之間的有效成績`);
                     return;
                 }
                 total += score * weight;
@@ -200,7 +302,7 @@
 
             const weightedAverage = total / totalWeight;
 
-            document.getElementById('totalScore').textContent = '總分: ' + total;
+            document.getElementById('totalScore').textContent = '總分: ' + total.toFixed(1);
             document.getElementById('weightedAverage').textContent = '加權平均: ' + weightedAverage.toFixed(1);
 
             document.getElementById('totalScore').classList.add('show');
@@ -209,9 +311,8 @@
 
         window.addEventListener('beforeunload', function (e) {
             const confirmationMessage = '你有未儲存的變更，確定要離開此頁面嗎？';
-            e.returnValue = confirmationMessage; // Gecko and Trident
-            return confirmationMessage; // Gecko and WebKit
+            e.returnValue = confirmationMessage;
+            return confirmationMessage;
         });
     </script>
-</body>
-</html>
+</body></html>
