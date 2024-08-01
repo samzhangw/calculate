@@ -69,19 +69,25 @@
             background-color: red;
             margin-left: 10px;
         }
+        .edit-button {
+            background-color: #ffc107;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
     <h1>段考成績加權計算</h1>
     <form id="scoreForm">
         <div class="subject-container">
-            <label for="chinese" onclick="editSubject(this)">國文 (x3):</label>
+            <label for="chinese">國文 (x3):</label>
             <input type="number" id="chinese" name="chinese" data-weight="3">
+            <button type="button" class="edit-button" onclick="editSubject(this)">編輯</button>
             <button type="button" onclick="removeSubject(this)">刪除</button>
         </div>
         <div class="subject-container">
-            <label for="math" onclick="editSubject(this)">數學 (x4):</label>
+            <label for="math">數學 (x4):</label>
             <input type="number" id="math" name="math" data-weight="4">
+            <button type="button" class="edit-button" onclick="editSubject(this)">編輯</button>
             <button type="button" onclick="removeSubject(this)">刪除</button>
         </div>
         <button type="button" onclick="addSubject()">新增科目</button>
@@ -112,7 +118,6 @@
             const label = document.createElement('label');
             label.textContent = `${subjectName} (x${weight}):`;
             label.setAttribute('for', subjectName.toLowerCase());
-            label.setAttribute('onclick', 'editSubject(this)');
 
             const input = document.createElement('input');
             input.type = 'number';
@@ -120,14 +125,21 @@
             input.name = subjectName.toLowerCase();
             input.setAttribute('data-weight', weight);
 
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.textContent = '刪除';
-            button.onclick = () => removeSubject(button);
+            const editButton = document.createElement('button');
+            editButton.type = 'button';
+            editButton.textContent = '編輯';
+            editButton.className = 'edit-button';
+            editButton.onclick = () => editSubject(editButton);
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.textContent = '刪除';
+            removeButton.onclick = () => removeSubject(removeButton);
 
             div.appendChild(label);
             div.appendChild(input);
-            div.appendChild(button);
+            div.appendChild(editButton);
+            div.appendChild(removeButton);
 
             form.insertBefore(div, form.children[form.children.length - 2]);
         }
@@ -137,14 +149,21 @@
             div.remove();
         }
 
-        function editSubject(label) {
-            const newSubjectName = prompt("請輸入新的科目名稱：", label.textContent.split(' ')[0]);
+        function editSubject(button) {
+            const div = button.parentElement;
+            const label = div.querySelector('label');
+            const input = div.querySelector('input');
+
+            const oldSubjectName = label.textContent.split(' (x')[0];
+            const oldWeight = label.textContent.split('x')[1].replace('):', '');
+
+            const newSubjectName = prompt("請輸入新的科目名稱：", oldSubjectName);
             if (!newSubjectName) {
                 alert("科目名稱不能為空");
                 return;
             }
 
-            const newWeight = prompt("請輸入新的加權值：", label.textContent.split('x')[1].replace('):', ''));
+            const newWeight = prompt("請輸入新的加權值：", oldWeight);
             if (!newWeight || isNaN(newWeight) || newWeight <= 0) {
                 alert("請輸入有效的加權值");
                 return;
@@ -153,7 +172,6 @@
             label.textContent = `${newSubjectName} (x${newWeight}):`;
             label.setAttribute('for', newSubjectName.toLowerCase());
 
-            const input = label.nextElementSibling;
             input.id = newSubjectName.toLowerCase();
             input.name = newSubjectName.toLowerCase();
             input.setAttribute('data-weight', newWeight);
