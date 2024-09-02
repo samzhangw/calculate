@@ -1,0 +1,718 @@
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段考成績計算器</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Noto+Sans+TC:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary-color: #6200ea;
+        --secondary-color: #03dac6;
+        --background-color: #f5f5f5;
+        --text-color: #333;
+        --input-bg: #fff;
+        --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+        --error-color: #ff3d00;
+    }
+
+    body {
+        font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+        background-color: var(--background-color);
+        background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: var(--text-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .container {
+        background-color: #ffffff;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: var(--box-shadow);
+        max-width: 600px;
+        width: 100%;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .container::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(98, 0, 234, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+        z-index: -1;
+        animation: pulse 15s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    h1 {
+        color: var(--primary-color);
+        margin-bottom: 30px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 2.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        position: relative;
+        display: inline-block;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    h1::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .container:hover h1::after {
+        transform: scaleX(1);
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .subject-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        animation: fadeIn 0.5s ease-out;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        padding: 15px;
+        transition: var(--transition);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        position: relative;
+    }
+
+    .subject-container:hover {
+        background-color: #f0f0f0;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    label {
+        flex: 1;
+        margin-right: 15px;
+        font-weight: 400;
+        color: #555;
+        transition: var(--transition);
+    }
+
+    .subject-container:hover label {
+        color: var(--primary-color);
+    }
+
+    input[type="number"] {
+        flex: 2;
+        padding: 12px;
+        font-size: 16px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background-color: var(--input-bg);
+        transition: var(--transition);
+    }
+
+    input[type="number"]:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(98, 0, 234, 0.1);
+    }
+
+    .error-message {
+        color: var(--error-color);
+        font-size: 0.8rem;
+        margin-top: 5px;
+        position: absolute;
+        bottom: -20px;
+        left: 15px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .error-message.show {
+        opacity: 1;
+    }
+
+    button {
+        padding: 12px 20px;
+        font-size: 16px;
+        color: white;
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+        margin: 5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            120deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent
+        );
+        transition: all 0.6s;
+    }
+
+    button:hover::before {
+        left: 100%;
+    }
+
+    button:hover {
+        background-color: #7c4dff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+    .edit-button {
+        background-color: var(--secondary-color);
+        color: #333;
+    }
+
+    .edit-button:hover {
+        background-color: #00bfa5;
+    }
+
+    .remove-button {
+        background-color: #ff5252;
+    }
+
+    .remove-button:hover {
+        background-color: #ff1744;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .result {
+        margin-top: 40px;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        opacity: 0;
+        transition: var(--transition);
+        background-color: #f0f0f0;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .result.show {
+        opacity: 1;
+        animation: pulse 2s infinite;
+    }
+
+    #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s, opacity 0.3s linear;
+    }
+
+    #loadingOverlay.show {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid var(--primary-color);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1001;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .modal-content h2 {
+        color: var(--primary-color);
+        margin-bottom: 20px;
+    }
+
+    .modal-content input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+
+    .modal-buttons button {
+        margin-left: 10px;
+    }
+
+    @media (max-width: 600px) {
+        body {
+            padding: 10px;
+        }
+
+        .container {
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .subject-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        label {
+            margin-bottom: 10px;
+            margin-right: 0;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        button {
+            width: 100%;
+            margin: 5px 0;
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        .edit-button, .remove-button {
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .result {
+            font-size: 1rem;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        .error-message {
+            position: static;
+            margin-top: 5px;
+        }
+
+        .modal-content {
+            width: 90%;
+            margin: 20% auto;
+        }
+    }
+
+    @media (max-width: 400px) {
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        .container {
+            padding: 15px;
+        }
+
+        .subject-container {
+            padding: 10px;
+        }
+
+        input[type="number"] {
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 13px;
+        }
+
+        .result {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>段考成績計算器</h1>
+        <form id="scoreForm">
+            <div id="subjectsContainer"></div>
+            <div class="action-buttons">
+                <button type="button" onclick="showAddSubjectModal()">新增科目</button>
+                <button type="button" onclick="calculateTotal()">計算總分</button>
+                <button type="button" onclick="saveData()">儲存科目及權重</button>
+            </div>
+        </form>
+        <div id="totalScore" class="result">總分: 0</div>
+        <div id="weightedAverage" class="result">加權平均: 0</div>
+    </div>
+
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="addSubjectModal" class="modal">
+        <div class="modal-content">
+            <h2>新增科目</h2>
+            <input type="text" id="newSubjectName" placeholder="科目名稱">
+            <input type="number" id="newSubjectWeight" placeholder="加權值" min="0.1" step="0.1">
+            <div class="modal-buttons">
+                <button onclick="closeAddSubjectModal()">取消</button>
+                <button onclick="confirmAddSubject()">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzHa71Re_ICwAx_uyr9qW7OFxcdghlCh00qtW6SsJbzZFL3F4mWcyJcuxBr-vY_IqTN/exec';
+
+        function addSubject(name, weight, score = '') {
+            const subjectsContainer = document.getElementById('subjectsContainer');
+
+            const div = document.createElement('div');
+            div.className = 'subject-container';
+
+            const label = document.createElement('label');
+            label.textContent = `${name} (x${weight}):`;
+            label.setAttribute('for', name.toLowerCase());
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.id = name.toLowerCase();
+            input.name = name.toLowerCase();
+            input.value = score;
+            input.setAttribute('data-weight', weight);
+            input.setAttribute('min', '0');
+            input.setAttribute('max', '100');
+            input.setAttribute('step', '0.1');
+            input.onblur = () => validateInput(input);
+
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'error-message';
+            errorMessage.textContent = '請輸入0到100之間的數字';
+
+            const editButton = document.createElement('button');
+            editButton.type = 'button';
+            editButton.textContent = '編輯';
+            editButton.className = 'edit-button';
+            editButton.onclick = () => editSubject(editButton);
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.textContent = '刪除';
+            removeButton.className = 'remove-button';
+            removeButton.onclick = () => removeSubject(removeButton);
+
+            div.appendChild(label);
+            div.appendChild(input);
+            div.appendChild(errorMessage);
+            div.appendChild(editButton);
+            div.appendChild(removeButton);
+
+            subjectsContainer.appendChild(div);
+        }
+
+        function validateInput(input) {
+            const value = parseFloat(input.value);
+            const errorMessage = input.nextElementSibling;
+            
+            if (input.value === '') {
+                // 允許空值
+                input.style.borderColor = '';
+                errorMessage.classList.remove('show');
+                return true;
+            } else if (isNaN(value) || value < 0 || value > 100) {
+                input.style.borderColor = 'var(--error-color)';
+                errorMessage.classList.add('show');
+                return false;
+            } else {
+                input.style.borderColor = '';
+                errorMessage.classList.remove('show');
+                return true;
+            }
+        }
+
+        function removeSubject(button) {
+            const div = button.parentElement;
+            div.style.animation = 'fadeOut 0.5s ease-out';
+            setTimeout(() => {
+                div.remove();
+            }, 500);
+        }
+
+        function editSubject(button) {
+            const div = button.parentElement;
+            const label = div.querySelector('label');
+            const input = div.querySelector('input');
+
+            const oldSubjectName = label.textContent.split(' (x')[0];
+            const oldWeight = label.textContent.split('x')[1].replace('):', '');
+
+            const newSubjectName = prompt("請輸入新的科目名稱：", oldSubjectName);
+            if (!newSubjectName) {
+                alert("科目名稱不能為空");
+                return;
+            }
+
+            let newWeight;
+            do {
+                newWeight = prompt("請輸入新的加權值：", oldWeight);
+                if (newWeight === null) return; // User cancelled
+                newWeight = parseFloat(newWeight);
+            } while (isNaN(newWeight) || newWeight <= 0);
+
+            label.textContent = `${newSubjectName} (x${newWeight}):`;
+            label.setAttribute('for', newSubjectName.toLowerCase());
+
+            input.id = newSubjectName.toLowerCase();
+            input.name = newSubjectName.toLowerCase();
+            input.setAttribute('data-weight', newWeight);
+
+            div.style.animation = 'pulse 0.5s ease-out';
+        }
+
+        function calculateTotal() {
+            const inputs = document.querySelectorAll('#scoreForm input');
+            let total = 0;
+            let totalWeight = 0;
+            let isValid = true;
+
+            inputs.forEach(input => {
+                if (!validateInput(input)) {
+                    isValid = false;
+                    return;
+                }
+                const weight = parseFloat(input.getAttribute('data-weight')) || 1;
+                const score = parseFloat(input.value) || 0;
+                total += score * weight;
+                totalWeight += weight;
+            });
+
+            if (!isValid) {
+                alert("請修正輸入錯誤後再計算");
+                return;
+            }
+
+            if (totalWeight === 0) {
+                alert("沒有有效的科目加權值");
+                return;
+            }
+
+            const weightedAverage = total / totalWeight;
+
+            document.getElementById('totalScore').textContent = '總分: ' + total.toFixed(1);
+            document.getElementById('weightedAverage').textContent = '加權平均: ' + weightedAverage.toFixed(1);
+
+            document.getElementById('totalScore').classList.add('show');
+            document.getElementById('weightedAverage').classList.add('show');
+        }
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+
+        function saveData() {
+            const subjects = [];
+            const inputs = document.querySelectorAll('#scoreForm input');
+
+            inputs.forEach(input => {
+                subjects.push({
+                    name: input.name,
+                    weight: input.getAttribute('data-weight')
+                });
+            });
+
+            if (subjects.length === 0) {
+                alert("請至少新增一個科目後再儲存");
+                return;
+            }
+
+            showLoading();
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({action: 'save', data: subjects})
+            })
+            .then(response => {
+                hideLoading();
+                alert('科目和權重已成功儲存！');
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                alert('儲存科目和權重時發生錯誤。');
+            });
+        }
+
+        function loadData() {
+            showLoading();
+            fetch(SCRIPT_URL + '?action=load')
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                document.getElementById('subjectsContainer').innerHTML = '';
+                if (data && data.length > 0) {
+                    data.forEach(subject => {
+                        addSubject(subject.name, subject.weight);
+                    });
+                } else {
+                    // 如果沒有儲存的資料，新增預設科目
+                    addSubject('國文', '1');
+                    addSubject('英文', '1');
+                    addSubject('數學', '1');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                alert('載入科目和權重時發生錯誤。已新增預設科目。');
+                // 新增預設科目
+                addSubject('國文', '1');
+                addSubject('英文', '1');
+                addSubject('數學', '1');
+            });
+        }
+
+        function showAddSubjectModal() {
+            document.getElementById('addSubjectModal').style.display = 'block';
+        }
+
+        function closeAddSubjectModal() {
+            document.getElementById('addSubjectModal').style.display = 'none';
+        }
+
+        function confirmAddSubject() {
+            const name = document.getElementById('newSubjectName').value.trim();
+            const weight = document.getElementById('newSubjectWeight').value;
+
+            if (!name) {
+                alert('請輸入科目名稱');
+                return;
+            }
+
+            if (!weight || isNaN(parseFloat(weight)) || parseFloat(weight) <= 0) {
+                alert('請輸入有效的加權值（大於0的數字）');
+                return;
+            }
+
+            addSubject(name, weight);
+            closeAddSubjectModal();
+
+            // 清空輸入欄位
+            document.getElementById('newSubjectName').value = '';
+            document.getElementById('newSubjectWeight').value = '';
+        }
+
+        // 頁面載入時自動載入科目權重
+        window.addEventListener('load', loadData);
+
+        // 關閉modal的事件監聽
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('addSubjectModal')) {
+                closeAddSubjectModal();
+            }
+        }
+    </script>
+</body></html>
