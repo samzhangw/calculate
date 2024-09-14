@@ -229,6 +229,10 @@
         display: block;
     }
 
+    input[type="number"].error {
+        border-color: var(--error-color);
+    }
+
     #loadingOverlay {
         position: fixed;
         top: 0;
@@ -323,15 +327,15 @@
             const errorMessage = input.nextElementSibling;
             
             if (input.value === '') {
-                input.style.borderColor = '';
+                input.classList.remove('error');
                 errorMessage.classList.remove('show');
                 return true;
             } else if (isNaN(value) || value < 0 || value > 100) {
-                input.style.borderColor = 'var(--error-color)';
+                input.classList.add('error');
                 errorMessage.classList.add('show');
                 return false;
             } else {
-                input.style.borderColor = '';
+                input.classList.remove('error');
                 errorMessage.classList.remove('show');
                 return true;
             }
